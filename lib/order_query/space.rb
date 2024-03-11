@@ -15,7 +15,9 @@ module OrderQuery
     def initialize(base_scope, order_spec)
       @base_scope = base_scope
       @columns = order_spec.map do |cond_spec|
-        Column.new(base_scope, *cond_spec)
+        kwargs, args = cond_spec.partition { |x| x.is_a?(Hash) }
+        kwargs = kwargs.reduce({}, :merge)
+        Column.new(base_scope, *args, **kwargs)
       end
       # add primary key if columns are not unique
       unless @columns.last.unique?
